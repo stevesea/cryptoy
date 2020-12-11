@@ -1,0 +1,13 @@
+{
+    "python.formatting.provider": "black",
+    "python.linting.ignorePatterns": [
+        ".vscode/*.py",
+        "**/site-packages/**/*.py",
+        ".venv/*"
+    ],
+    "python.linting.mypyEnabled": true,
+    "python.linting.flake8Args": [
+        "--max-line-length=120"
+    ],
+    "editor.formatOnSave": true
+}
