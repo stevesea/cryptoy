@@ -17,7 +17,6 @@ RUN \
 ADD https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini-static /tini
 RUN chmod +x /tini
 
-WORKDIR /app
 
 #####
 # copy just the poetry toml/lock, and install 3rd party deps
@@ -31,14 +30,17 @@ ENV PIP_DEFAULT_TIMEOUT=100 \
 RUN \
     --mount=type=cache,id=pip,target=/root/.cache/pip \
     pip install --no-cache-dir "poetry==$POETRY_VERSION"
-RUN \
-    --mount=type=cache,id=pip,target=/root/.cache/pip \
-    python3 -m venv /venv
+RUN python3 -m venv /venv
+
+WORKDIR /app
 
 COPY pyproject.toml poetry.lock ./
+# use `poetry export` instead of `poetry install --no-dev --no-root`,
+# this Dockerfile step is all about 3rd party dependencies, and 
+# we don't want to re-run it if we just update metadata in pyproject.toml
 RUN \
     --mount=type=cache,id=pip,target=/root/.cache/pip \
-    . /venv/bin/activate && poetry install --no-dev --no-root
+    poetry export -f requirements.txt | /venv/bin/pip install -r /dev/stdin
 
 #####
 # copy the source and build / install a wheel
@@ -47,12 +49,13 @@ FROM builder-deps as builder-app
 COPY . .
 RUN \
     --mount=type=cache,id=pip,target=/root/.cache/pip \
-    . /venv/bin/activate && poetry build && pip install --no-cache-dir dist/*.whl
+    poetry build && /venv/bin/pip install --no-cache-dir dist/*.whl
 
 
 #####
 FROM base as final
 USER nobody
 COPY --from=builder-app --chown=nobody:nobody /venv /venv
+WORKDIR /venv/bin
 ENTRYPOINT [ "/tini", "-e", "143", "--" ]
-CMD ["/venv/bin/cryptoy"]
+CMD ["/venv/bin/python", "/venv/bin/cryptoy"]

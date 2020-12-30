@@ -19,10 +19,8 @@ APP_NAME := cryptoy
 docker-build: ## Build the container
 	DOCKER_BUILDKIT=1 docker build -t $(APP_NAME) .
 
-docker-run: ## run the container
+docker-run: docker-build ## run the container
 	docker run --rm -it $(APP_NAME) 
-
-docker-up: docker-build docker-run ## build & run
 
 dive: docker-build
 	docker run --rm -it \
@@ -30,12 +28,13 @@ dive: docker-build
         -v /var/run/docker.sock:/var/run/docker.sock \
         wagoodman/dive:latest $(APP_NAME)
 
-hadolint:
-	docker run --rm -i hadolint/hadolint < Dockerfile
+hadolint: ## run hadolint on the Dockerfile
+	-docker run --rm -i hadolint/hadolint < Dockerfile
 
-dockle: docker-build
+dockle: docker-build ## run dockle on the container image
 	docker run --rm -i \
         -v /var/run/docker.sock:/var/run/docker.sock \
         goodwithtech/dockle:latest -i CIS-DI-0006 -i CIS-DI-0005 $(APP_NAME)
 
 docker-lint: hadolint dockle ## run docker image linters
+
