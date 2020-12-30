@@ -41,7 +41,10 @@ RUN . /venv/bin/activate && poetry build && pip install dist/*.whl
 
 #####
 FROM base as final
-
-COPY --from=builder-app /venv /venv
+RUN \
+    groupadd -g 2008 appuser \
+    && useradd -r -u 2008 -g appuser appuser
+USER appuser
+COPY --from=builder-app --chown=appuser:appuser /venv /venv
 ENTRYPOINT [ "/tini", "-e", "143", "--" ]
 CMD ["/venv/bin/cryptoy"]
