@@ -32,13 +32,14 @@ COPY pyproject.toml poetry.lock ./
 RUN . /venv/bin/activate && poetry install --no-dev --no-root
 
 COPY . .
-RUN . /venv/bin/activate && poetry build
+RUN . /venv/bin/activate && poetry build && pip install dist/*.whl
 
 FROM base as final
 
 COPY --from=builder /venv /venv
-COPY --from=builder /app/dist .
+#COPY --from=builder /app/dist .
 
-RUN . /venv/bin/activate && pip install *.whl
+#RUN . /venv/bin/activate && pip install *.whl
 ENTRYPOINT [ "/tini", "-e", "143", "--" ]
 CMD ["/venv/bin/cryptoy"]
+
