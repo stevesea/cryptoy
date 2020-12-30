@@ -1,24 +1,27 @@
-import click
+"""console interface for cryptoy."""
+
 import logging
 
-from rich.logging import RichHandler
+import click
 from rich.console import Console
+from rich.logging import RichHandler
 
 from . import __version__
 
-
-logging.basicConfig(
-    level="NOTSET",
-    format="%(message)s",
-    datefmt="[%X]",
-    handlers=[RichHandler(rich_tracebacks=True)],
-)
 console = Console()
+logger = logging.getLogger(__name__)
 
 
 @click.command()
 @click.version_option(version=__version__)
 def main():
-    log = logging.getLogger("console")
+    """CLI entrypoint for crypto.console."""
+    logging.basicConfig(
+        level="INFO",
+        format="%(name)s:%(funcName)s - %(message)s",
+        datefmt="[%X]",
+        handlers=[RichHandler(rich_tracebacks=True)],
+    )
 
-    log.info("Hello world!")
+    logger.info("Hello world! (log)")
+    console.log("Hello world (console)")
