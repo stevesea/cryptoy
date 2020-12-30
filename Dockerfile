@@ -1,3 +1,5 @@
+# syntax = docker/dockerfile:experimental
+
 FROM python:3.9-slim as base
 
 ENV PYTHONFAULTHANDLER=1 \
@@ -9,6 +11,7 @@ RUN \
     apt-get -yqq update \
     && apt-get install --no-install-suggests --no-install-recommends --yes \
     libsodium23 \
+    && apt-get autoremove -y \
     && apt-get clean \
     && rm -rf /tmp/* /var/lib/apt/lists/* 
 ADD https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini-static /tini
@@ -25,26 +28,31 @@ ENV PIP_DEFAULT_TIMEOUT=100 \
     PIP_NO_CACHE_DIR=1 \
     POETRY_VERSION=1.1.4
 
-RUN pip install "poetry==$POETRY_VERSION"
-RUN python3 -m venv /venv
+RUN \
+    --mount=type=cache,id=pip,target=/root/.cache/pip \
+    pip install --no-cache-dir "poetry==$POETRY_VERSION"
+RUN \
+    --mount=type=cache,id=pip,target=/root/.cache/pip \
+    python3 -m venv /venv
 
 COPY pyproject.toml poetry.lock ./
-RUN . /venv/bin/activate && poetry install --no-dev --no-root
+RUN \
+    --mount=type=cache,id=pip,target=/root/.cache/pip \
+    . /venv/bin/activate && poetry install --no-dev --no-root
 
 #####
 # copy the source and build / install a wheel
 FROM builder-deps as builder-app
 
 COPY . .
-RUN . /venv/bin/activate && poetry build && pip install dist/*.whl
+RUN \
+    --mount=type=cache,id=pip,target=/root/.cache/pip \
+    . /venv/bin/activate && poetry build && pip install --no-cache-dir dist/*.whl
 
 
 #####
 FROM base as final
-RUN \
-    groupadd -g 2008 appuser \
-    && useradd -r -u 2008 -g appuser appuser
-USER appuser
-COPY --from=builder-app --chown=appuser:appuser /venv /venv
+USER nobody
+COPY --from=builder-app --chown=nobody:nobody /venv /venv
 ENTRYPOINT [ "/tini", "-e", "143", "--" ]
 CMD ["/venv/bin/cryptoy"]
