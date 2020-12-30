@@ -1,0 +1,11 @@
+
+
+Dockerfile
+README.md
+Makefile
+.git
+.gitignore
+.venv
+.coverage 
+.vscode
+tests
