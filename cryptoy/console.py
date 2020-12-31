@@ -12,10 +12,7 @@ console = Console()
 logger = logging.getLogger(__name__)
 
 
-@click.command()
-@click.version_option(version=__version__)
-def main():
-    """CLI entrypoint for crypto.console."""
+def setup_logging():
     logging.basicConfig(
         level="INFO",
         format="%(name)s:%(funcName)s - %(message)s",
@@ -25,3 +22,17 @@ def main():
 
     logger.info("Hello world! (log)")
     console.log("Hello world (console)")
+
+
+@click.group()
+@click.version_option(version=__version__)
+@click.option("--verbose", "-v", is_flag=True, help="Enables verbose mode.")
+@click.pass_context
+def cli(ctx, verbose):
+    """CLI entrypoint for crypto.console."""
+    pass
+
+
+@cli.command()
+def create_key():
+    setup_logging()

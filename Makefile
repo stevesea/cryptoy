@@ -38,3 +38,11 @@ dockle: docker-build ## run dockle on the container image
 
 docker-lint: hadolint dockle ## run docker image linters
 
+install: 
+	poetry install 
+
+test: install 
+	poetry run pytest
+
+run: 
+	poetry run cryptoy 

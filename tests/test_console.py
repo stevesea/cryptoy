@@ -11,5 +11,5 @@ def runner():
 
 
 def test_main_succeeds(runner):
-    result = runner.invoke(console.main)
+    result = runner.invoke(console.cli, ["--version"])
     assert result.exit_code == 0
