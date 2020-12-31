@@ -8,13 +8,13 @@ from nacl.public import PrivateKey
 
 from cryptoy.encodings import a2b, b2a
 
-T = TypeVar("T", bound="EncryptingKeyPair")
+T = TypeVar("T", bound="BoxKeyPair")
 
 
 @dataclass_json
 @dataclass
-class EncryptingKeyPair:
-    """libsodium Curve25519 Keypair."""
+class BoxKeyPair:
+    """libsodium Curve25519 Keypair for use with Box/SealedBox."""
 
     public_key_base64: str
     secret_key_base64: str
@@ -23,9 +23,9 @@ class EncryptingKeyPair:
     def generate(cls: Type[T]) -> T:
         """generate a new libsodium Curve25519 Keypair.
 
-        >>> kp = EncryptingKeyPair.generate()
+        >>> kp = BoxKeyPair.generate()
         >>> asjson = kp.to_json()
-        >>> kp2 = EncryptingKeyPair.from_json(asjson)
+        >>> kp2 = BoxKeyPair.from_json(asjson)
         >>> kp == kp2
         True
         """
@@ -40,7 +40,7 @@ class EncryptingKeyPair:
     def from_secret_key_base64(cls: Type[T], secret_key_base64: str) -> T:
         """generate a new libsodium Curve25519 Keypair.
 
-        >>> kp = EncryptingKeyPair.from_secret_key_base64("pQy+q7cw2YfS0RGfSF8IKqMrZ8/nmVf99pHAdxFJAsI=")
+        >>> kp = BoxKeyPair.from_secret_key_base64("pQy+q7cw2YfS0RGfSF8IKqMrZ8/nmVf99pHAdxFJAsI=")
         >>> kp.public_key_base64
         '0HmxBKFksC/sybT7Gqzsmnna4T/wEDVoI/hbC0GyW2c='
         >>> kp.to_dict()

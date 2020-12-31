@@ -1,12 +1,12 @@
-from cryptoy.nacl import EncryptingKeyPair
+from cryptoy.nacl.box import BoxKeyPair
 
 
 def test_keypair_gen():
-    kp = EncryptingKeyPair.generate()
+    kp = BoxKeyPair.generate()
 
     asjson = kp.to_json()
 
     asdict = kp.to_dict()
 
-    assert EncryptingKeyPair.from_json(asjson) == kp
-    assert EncryptingKeyPair.from_dict(asdict) == kp
+    assert BoxKeyPair.from_json(asjson) == kp
+    assert BoxKeyPair.from_dict(asdict) == kp

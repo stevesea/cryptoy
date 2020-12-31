@@ -10,6 +10,6 @@ def runner():
     return click.testing.CliRunner()
 
 
-def test_main_succeeds(runner):
+def test_version(runner):
     result = runner.invoke(console.cli, ["--version"])
     assert result.exit_code == 0
