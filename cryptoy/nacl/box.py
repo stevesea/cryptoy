@@ -6,7 +6,7 @@ from typing import Type, TypeVar
 from dataclasses_json import dataclass_json
 from nacl.public import PrivateKey
 
-from cryptoy.encodings import a2b, b2a
+from cryptoy.util.binascii import a2b, b2a
 
 T = TypeVar("T", bound="BoxKeyPair")
 
@@ -14,14 +14,17 @@ T = TypeVar("T", bound="BoxKeyPair")
 @dataclass_json
 @dataclass
 class BoxKeyPair:
-    """libsodium Curve25519 Keypair for use with Box/SealedBox."""
+    """libsodium Curve25519 Keypair for use with Box/SealedBox.
+
+    This is used to serialize/deserialize the KP
+    """
 
     public_key_base64: str
     secret_key_base64: str
 
     @classmethod
     def generate(cls: Type[T]) -> T:
-        """generate a new libsodium Curve25519 Keypair.
+        """create a new libsodium Curve25519 Keypair.
 
         >>> kp = BoxKeyPair.generate()
         >>> asjson = kp.to_json()
@@ -38,7 +41,7 @@ class BoxKeyPair:
 
     @classmethod
     def from_secret_key_base64(cls: Type[T], secret_key_base64: str) -> T:
-        """generate a new libsodium Curve25519 Keypair.
+        """create a libsodium Curve25519 Keypair using an existing secret key.
 
         >>> kp = BoxKeyPair.from_secret_key_base64("pQy+q7cw2YfS0RGfSF8IKqMrZ8/nmVf99pHAdxFJAsI=")
         >>> kp.public_key_base64

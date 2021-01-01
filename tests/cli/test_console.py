@@ -2,7 +2,7 @@
 import click.testing
 import pytest
 
-from cryptoy import console
+from cryptoy.cli import nacl
 
 
 @pytest.fixture
@@ -11,5 +11,5 @@ def runner():
 
 
 def test_version(runner):
-    result = runner.invoke(console.cli, ["--version"])
+    result = runner.invoke(nacl.cli, ["--version"])
     assert result.exit_code == 0

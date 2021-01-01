@@ -56,5 +56,5 @@ FROM base as final
 USER nobody
 COPY --from=builder-app --chown=nobody:nobody /venv /venv
 WORKDIR /venv/bin
-ENTRYPOINT [ "/tini", "-e", "143", "--" , "/venv/bin/python", "/venv/bin/cryptoy"]
-CMD ["--help"]
+ENTRYPOINT [ "/tini", "-e", "143", "--" , "/venv/bin/python"]
+CMD ["cryptoy-nacl"]

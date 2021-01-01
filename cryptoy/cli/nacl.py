@@ -1,6 +1,5 @@
-"""console interface for cryptoy."""
+"""console interface for cryptoy's NaCL commands."""
 
-from dataclasses import dataclass
 import json
 import logging
 
@@ -8,14 +7,14 @@ import click
 from rich.console import Console
 from rich.logging import RichHandler
 
+from cryptoy import __version__
 from cryptoy.nacl.box import BoxKeyPair
-from . import __version__
 
 console = Console()
 logger = logging.getLogger(__name__)
 
 
-def setup_logging(verbosity: int):
+def setup_logging(verbosity: int) -> None:
     levels = [
         logging.CRITICAL,
         logging.ERROR,
@@ -34,31 +33,25 @@ def setup_logging(verbosity: int):
     )
 
 
-@dataclass
-class CTX:
-    verbose: int = 0
-
-
 @click.group()
 @click.version_option(version=__version__)
 @click.option("--verbose", "-v", count=True, help="Enables verbose mode.")
-@click.pass_context
-def cli(ctx, verbose):
-    """CLI entrypoint for crypto.console."""
-    ctx.ensure_object(CTX)
-    ctx.obj.verbose = verbose
+def cli(verbose: int) -> None:
+    """CLI entrypoint for cryptoy-nacl."""
     setup_logging(verbose)
     logger.info("Hello world! (root)")
 
 
 @cli.command("create-kp")
-def pk_create():
-    """Create a new Curve25519 keypair for public key encryption"""
-    logger.info("Hello world! (pk)")
-    console.log("Hello world (console)")
+@click.argument("filename", type=click.File("w", encoding="UTF-8"))
+def pk_create(filename) -> None:
+    """Create a new Curve25519 keypair for public key encryption, write to FILENAME"""
+    # logger.info("Hello world! (pk)")
+    # console.log("Hello world (console)")
 
     kp = BoxKeyPair.generate()
-    console.log(json.dumps(json.loads(kp.to_json()), indent=4))
+    logger.debug(json.dumps(json.loads(kp.to_json()), indent=4))
+    filename.write(kp.to_json())
 
 
 @cli.command("box")
@@ -70,7 +63,7 @@ def pk_create():
 )
 @click.argument("input", type=click.File("rb"))
 @click.argument("output", type=click.File("wb"))
-def pk_box():
+def pk_box() -> None:
     """Encrypt a message from a sender to a receiver"""
     pass
 
@@ -84,6 +77,6 @@ def pk_box():
 )
 @click.argument("input", type=click.File("rb"))
 @click.argument("output", type=click.File("wb"))
-def pk_unbox():
+def pk_unbox() -> None:
     """Decrypt a message from a sender to a receiver"""
     pass
